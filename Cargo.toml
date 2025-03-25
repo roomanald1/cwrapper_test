@@ -1,0 +1,14 @@
+[package]
+name = "cwrapper_test"
+version = "0.1.0"
+edition = "2024"
+build = "build.rs"
+
+[target.x86_64-apple-darwin]
+rustflags = ["-C", "link-arg=-mmacosx-version-min=15.0"]
+
+[dependencies]
+libc = "0.2.171"
+
+[build-dependencies]
+bindgen = "0.71.1"
