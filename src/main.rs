@@ -1,9 +1,13 @@
-use cwrapper_test::{add_edge, add_vertices, clean_graph, empty_graph, find_cycle, is_directed, neighbours, num_edges, num_vertices, version_string};
+use cwrapper_test::{add_edge, add_vertices, clean_graph, empty_graph, find_cycle, get_attr_table, is_directed, neighbours, num_edges, num_vertices, version_string};
 
 fn main() -> Result<(), String> {
     println!("igraph version: {}", version_string());
+
+    println!("Enable attr");
+    let mut attr_table = get_attr_table();
+
     println!("creating graph");
-    let mut graph = empty_graph(true)?;
+    let mut graph = empty_graph(true, &mut attr_table)?;
     println!("created graph directed={}", is_directed(&mut graph));
 
     println!("adding nodes 0 - 4");
@@ -28,20 +32,11 @@ fn main() -> Result<(), String> {
     let v_count = num_vertices(&graph);
     let e_count = num_edges(&graph);
 
-    let n_0 = neighbours(&graph, 0)?;
-    println!("n0 {:?}", n_0);
 
-    let n_1 = neighbours(&graph, 1)?;
-    println!("n1 {:?}", n_1);
-
-    let n_2 = neighbours(&graph, 2)?;
-    println!("n2 {:?}", n_2);
-
-    let n_3 = neighbours(&graph, 3)?;
-    println!("n3 {:?}", n_3);
-
-    let n_4 = neighbours(&graph, 4)?;
-    println!("n4 {:?}", n_4);
+    for i in 0..v_count {
+        let n = neighbours(&graph, 0)?;
+        println!("n{i} {:?}", n);
+    }
 
     let (cycle_v, _) = find_cycle(&graph)?;
 
@@ -51,6 +46,6 @@ fn main() -> Result<(), String> {
     Has Cycle v({:?})", cycle_v);
 
 
-    //clean_graph(&mut graph);
+    clean_graph(&mut graph);
     Ok(())
 }

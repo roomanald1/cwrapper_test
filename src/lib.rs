@@ -1,4 +1,4 @@
-use std::ffi::{ CStr};
+use std::ffi::{CStr, CString};
 use std::mem::MaybeUninit;
 use std::os::raw::{c_char};
 use std::slice;
@@ -36,12 +36,24 @@ pub fn version_string() -> String {
     }
 }
 
-pub fn empty_graph(is_directed: bool) -> Result<igraph_t, String> {
+pub fn get_attr_table() -> igraph_attribute_table_t {
     unsafe {
+        igraph_cattribute_table
+    }
+}
+
+pub fn empty_graph(is_directed: bool, attr_table: &mut igraph_attribute_table_t) -> Result<igraph_t, String> {
+    unsafe {
+        igraph_set_attribute_table(attr_table);
+
+
         let mut graph = MaybeUninit::<igraph_t>::uninit();
         match igraph_empty(graph.as_mut_ptr(), 0, is_directed)
         {
-            igraph_error_type_t_IGRAPH_SUCCESS => Ok(graph.assume_init()),
+            igraph_error_type_t_IGRAPH_SUCCESS => {
+                let result = graph.assume_init();
+                Ok(result)
+            },
             code => Err(format!("Failed to initialize graph! {}", code))
         }
     }
@@ -86,8 +98,10 @@ pub fn add_edge(graph: &mut igraph_t, from: i64, to: i64, weight: Option<f64>) -
                 match weight {
                     None => Ok(()),
                     Some(value) =>{
-                       /*TODO let eid = get_edge_id(&mut graph.clone(), from, to)?;
-                        add_edge_weight(&mut graph.clone(), eid, value)?;*/
+                        let eid = get_edge_id(graph, from, to)?;
+                        println!("edge id {}",eid.to_string());
+
+                        //add_edge_weight(graph, eid, value)?;
                         Ok(())
                     }
                 }
@@ -99,7 +113,15 @@ pub fn add_edge(graph: &mut igraph_t, from: i64, to: i64, weight: Option<f64>) -
 
 fn add_edge_weight(graph: &mut igraph_t, edge_id: igraph_integer_t, weight: igraph_real_t) -> Result<(), String>{
     unsafe {
-        let attr_name = std::ffi::CString::new("weight").unwrap();
+        let attr_name = std::ffi::CString::new("weight").map_err(|err| err.to_string())?;
+
+        /*// 2. Check if attribute exists, if not create it
+        if igraph_cattribute_has_attr(graph, igraph_attribute_elemtype_t_IGRAPH_ATTRIBUTE_EDGE, attr_name.as_ptr()) == false {
+            if igraph_cattribute_EAN_setv(graph, attr_name.as_ptr(), std::ptr::null()) != igraph_error_type_t_IGRAPH_SUCCESS {
+                return Err("Failed to initialize weight attribute".to_string());
+            }
+        }
+*/
         match igraph_cattribute_EAN_set(graph, attr_name.as_ptr(), edge_id, weight)
         {
             igraph_error_type_t_IGRAPH_SUCCESS => Ok(()),
@@ -111,7 +133,7 @@ fn add_edge_weight(graph: &mut igraph_t, edge_id: igraph_integer_t, weight: igra
 fn get_edge_id(graph: &mut igraph_t, from: i64, to: i64) -> Result<igraph_integer_t, String>{
     unsafe {
         let mut eid = 0;
-        match igraph_get_eid(graph, &mut eid, from, to, true, false){
+        match igraph_get_eid(graph, &mut eid, from, to, true, true){
             igraph_error_type_t_IGRAPH_SUCCESS => Ok(eid),
             code =>  Err(format!("Failed to get edge ID {}", code))
         }
@@ -134,6 +156,44 @@ fn create_vector_int() -> Result<igraph_vector_int_t, String> {
         Ok(vec)
     }
 }
+fn create_vector_t() -> Result<igraph_vector_t, String> {
+    unsafe {
+        let mut vec = MaybeUninit::<igraph_vector_t>::uninit();
+        if igraph_vector_init(vec.as_mut_ptr(), 0) != 0 {
+            return Err("Failed to initialize vector".to_string());
+        }
+        let vec = vec.assume_init();
+        Ok(vec)
+    }
+}
+fn create_vector_str() -> Result<igraph_strvector_t, String> {
+    unsafe {
+        let mut vec = MaybeUninit::<igraph_strvector_t>::uninit();
+        if igraph_strvector_init(vec.as_mut_ptr(), 0) != 0 {
+            return Err("Failed to initialize vector".to_string());
+        }
+        let vec = vec.assume_init();
+        Ok(vec)
+    }
+}
+
+
+fn create_attr_table() -> Result<igraph_attribute_combination_t, String> {
+    unsafe {
+        let mut table = MaybeUninit::<igraph_attribute_combination_t>::uninit();
+        if igraph_attribute_combination_init(table.as_mut_ptr()) != 0 {
+            return Err("Failed to initialize vector".to_string());
+        }
+
+        let mut table = table.assume_init();
+
+        let weight = CString::new("weight").map_err(|e| e.to_string())?;
+        if igraph_attribute_combination_add(&mut table, weight.as_ptr(), igraph_attribute_combination_type_t_IGRAPH_ATTRIBUTE_COMBINE_SUM, None) != 0 {
+            return Err(format!("Failed to add weight attribute"));
+        }
+        Ok(table)
+    }
+}
 
 pub fn neighbours(graph: &igraph_t, nv: igraph_integer_t) -> Result<Vec<i64>, String> {
     unsafe {
@@ -150,7 +210,6 @@ pub fn neighbours(graph: &igraph_t, nv: igraph_integer_t) -> Result<Vec<i64>, St
         }
     }
 }
-
 /*TODO pub fn shortest_path_dijkstra(graph: &igraph_t, from: i64, to: i64) -> Result<(f64, Vec<i64>), String> {
     unsafe {
         // Prepare output variables
