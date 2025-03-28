@@ -9,6 +9,10 @@ fn main() {
     let bindings = bindgen::Builder::default()
         .header("wrapper.h")
         .clang_arg("-I/usr/local/include/igraph")
+        .no_copy("igraph_vector_int_t")
+        .no_copy("igraph_attribute_table_t")
+        .no_copy("igraph_t")
+        .generate_inline_functions(true)
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate()
         .expect("Unable to generate bindings");
@@ -23,7 +27,7 @@ fn main() {
 
     // Add allow attributes to the generated file
     let mut contents = fs::read_to_string(&binding_path).unwrap();
-    contents = format!("#[allow(unsafe_code, unused, non_snake_case)]\n{}", contents);
+    contents = format!("#[allow(unsafe_code, unused, non_snake_case, non_upper_case_globals)]\n{}", contents);
 
     fs::write(&binding_path, contents).unwrap();
 }
