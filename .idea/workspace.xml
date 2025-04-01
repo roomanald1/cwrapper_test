@@ -8,14 +8,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="76cc0aaf-3494-49ba-b1b8-db04aa8b0920" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/igraph/ffi.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/igraph/global.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/igraph/graph.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/igraph/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/igraph/utils.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.rs" beforeDir="false" afterPath="$PROJECT_DIR$/build.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/igraph/graph.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/igraph/graph.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -53,7 +47,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "git-widget-placeholder": "c4e6c95d",
+    "git-widget-placeholder": "96256f65",
     "last_opened_file_path": "/Users/ronnieday/dev/cwrapper_test",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
@@ -64,7 +58,7 @@
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
     "org.rust.disableDetachedFileInspection/Users/ronnieday/cwrapper_test/build.rs": "true",
     "org.rust.first.attach.projects": "true",
-    "settings.editor.selected.configurable": "vcs.Git",
+    "settings.editor.selected.configurable": "settings.sync",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
@@ -97,6 +91,9 @@
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
   </component>
+  <component name="RustfmtProjectSettings">
+    <option name="useRustfmt2" value="false" />
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -107,7 +104,9 @@
       <updated>1742917236293</updated>
       <workItem from="1742917238350" duration="3223000" />
       <workItem from="1742975020534" duration="13373000" />
-      <workItem from="1743079979817" duration="16551000" />
+      <workItem from="1743079979817" duration="19073000" />
+      <workItem from="1743168794872" duration="247000" />
+      <workItem from="1743169844400" duration="2861000" />
     </task>
     <servers />
   </component>

@@ -1,10 +1,13 @@
-use std::mem::MaybeUninit;
+use std::mem::{transmute, MaybeUninit};
+use std::os::raw::c_void;
 use crate::igraph::ffi::*;
 use crate::igraph::utils::*;
 
 pub struct Graph {
     inner: igraph_t,
 }
+
+pub type CycleHandler = fn(Vec<i64>);
 
 impl Graph {
     pub fn new(is_directed: bool) -> Result<Self, String> {
@@ -102,6 +105,43 @@ impl Graph {
                     Err(format!("failed {}", code))
                 }
             }
+        }
+    }
+
+    pub fn find_cycles(&mut self, callback: CycleHandler) -> () {
+
+        let callback_ptr = callback as *const () as *mut c_void;
+
+        unsafe extern "C" fn raw_cycle_callback (
+            c_v: *const igraph_vector_int_t,
+            _c_e: *const igraph_vector_int_t,
+            arg: *mut c_void
+        ) -> igraph_error_t {
+            unsafe {
+                if !c_v.is_null() {
+                    match try_vector_int_to_vec(&*c_v){
+                        Ok(vertices) => {
+                            let handler : CycleHandler = transmute(arg as *const ());
+                            handler(vertices)
+                        },
+                        Err(error) => {
+                            println!("{}", error);
+                        }
+                    }
+                }
+                SUCCESS
+            }
+        }
+
+       unsafe {
+            igraph_simple_cycles_callback(
+                &mut self.inner,
+                igraph_neimode_t_IGRAPH_OUT,
+                1,
+                1000,
+                Some(raw_cycle_callback),
+                callback_ptr
+            );
         }
     }
 }

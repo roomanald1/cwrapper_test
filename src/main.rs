@@ -43,6 +43,10 @@ fn main() -> Result<(), String> {
         println!("n{i} {:?}", n);
     }
 
+    graph.find_cycles(|e| {
+        println!("Found Cycle {:?}", e)
+    });
+
     let (cycle_v, _) = graph.find_cycle()?;
 
     println!("Result: \n \
